@@ -22,6 +22,15 @@ public class RestExample {
 		person.memo="まあまあのおっさん";
 		
 		personDb.put(person.toString().hashCode(),person);
+		
+	    before((request, response) -> {
+	        response.header("Access-Control-Allow-Origin", "*");
+	        response.header("Access-Control-Request-Method", "GET,PUT,PATH,DELETE,POST");
+	        response.header("Access-Control-Allow-Headers", "Content-Type,Authorization,X-Requested-With,Content-Length,Accept,Origin,");
+	        response.type("application/json;charset=utf-8");
+	    });
+		
+		
 
 		get("/persons", "application/json", (req,res)->{
 			return personDb;
