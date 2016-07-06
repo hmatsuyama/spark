@@ -4,16 +4,21 @@ import static spark.Spark.*;
 
 import java.util.HashMap;
 import java.util.LinkedHashMap;
-
+import java.util.LinkedList;
+import java.util.List;
 import java.util.Map;
 
 import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
+import com.google.gson.JsonArray;
+import com.google.gson.JsonElement;
+import com.google.gson.JsonObject;
 
 public class RestExample {
 
 	public static void main(String[] args) {
 		
-		Gson gson = new Gson();
+		Gson gson = new GsonBuilder().setPrettyPrinting().create();
 		Map<Integer, Person> personDb = new LinkedHashMap<Integer, Person>();
 		Person person = new Person();
 		person.firstName = "John";
@@ -21,20 +26,25 @@ public class RestExample {
 		person.age=66;
 		person.memo="まあまあのおっさん";
 		
-		personDb.put(person.toString().hashCode(),person);
+		personDb.put(person.hashCode(),person);
 		
 	    before((request, response) -> {
 	        response.header("Access-Control-Allow-Origin", "*");
-	        response.header("Access-Control-Request-Method", "GET,PUT,PATH,DELETE,POST");
-	        response.header("Access-Control-Allow-Headers", "Content-Type,Authorization,X-Requested-With,Content-Length,Accept,Origin,");
 	        response.type("application/json;charset=utf-8");
 	    });
 		
-		
 
 		get("/persons", "application/json", (req,res)->{
-			return personDb;
-		}, gson::toJson);
+			JsonArray arr = new JsonArray();
+			for(int id: personDb.keySet()){
+				JsonObject per = gson.fromJson(gson.toJson(personDb.get(id)), JsonElement.class);
+				per.addProperty("id", id);
+				arr.add(per);
+				}
+			String str = gson.toJson(arr);
+			System.out.println(str);
+			return str;
+		});
 		
 		get("/persons/:id", "application/json", (req,res)->{
 			int id=Integer.parseInt(req.params(":id"));
@@ -50,8 +60,8 @@ public class RestExample {
 			personNew.lastName=req.queryParams("lastName");
 			personNew.age=Integer.parseInt(req.queryParams("age"));
 			personNew.memo=req.queryParams("memo");
-			personDb.put(personNew.toString().hashCode(),personNew);
-			return personNew.toString().hashCode();
+			personDb.put(personNew.hashCode(),personNew);
+			return personNew.hashCode();
 		}, gson::toJson);
 		
 		put("/persons/:id", "application/json", (req,res)->{
@@ -71,6 +81,12 @@ public class RestExample {
 			//TODO deleteする。
 			personDb.remove(id);
 			return null;
+		}, gson::toJson);
+		
+		get("/test", (req,res)->{
+			res.status(303);
+			res.header("Location", "http://www.orb-japan.co.jp");
+			return -1;
 		}, gson::toJson);
 		
 	}

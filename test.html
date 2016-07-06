@@ -32,7 +32,8 @@
 				<h1>post</h1>
 			</header>
 			<nav></nav>
-			<a class="btn btn-default" id="sendbtn" href="#">send</a>
+			<a class="btn btn-default" id="sendbtn" href="#">send</a><br>
+			<input type="text" id="deleteId" placeholder="idをいれてください"><a class="btn btn-default" id="deletebtn" href="#">delete</a>
 			<div class="wrapper">
 			</div>
 			<script type="text/javascript">
@@ -47,12 +48,22 @@
 							data:postData,
 							//contentType:'application/json',
 							success:function(data){
-								alert(data);
+								console.log(data);
 							}
 						});
+					});
 					
-					
-					
+					$('#deletebtn').click(function(){
+						var deleteId = $("#deleteId").val();
+						//$.post("http://localhost:4567/persons", postData, function(data, status){console.log(JSON.stringify(data)+":"+status)});
+						$.ajax({
+							url:'http://localhost:4567/persons/'+deleteId,
+							type:'DELETE',
+							//contentType:'application/json',
+							success:function(data){
+								console.log(data);
+							}
+						});
 					});
 	
 
